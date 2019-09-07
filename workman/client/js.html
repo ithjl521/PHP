@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>使用workerman实现在线聊天-第一版</title>
+</head>
+<body>
+  <div>
+    当前用户：
+    <div id="curuser" style="width:100px;height:30px;border: 1px solid red;">
+      
+    </div>
+    消息内容：
+    <div id="chatinfo" style="width:500px;border: 1px solid red;">
+      
+    </div>
+    msg:<input type="text" id="msg" name="" value=""><br>
+    id:<input type="text" id="tofriend" name="" value=""><br>
+    name:<input type="text" id="tofriendname" name="" value=""><br>
+    <button type="text" id="send">提交</button>
+  </div>
+<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    function connect() {
+       // 创建websocket
+       ws = new WebSocket("ws://192.168.88.15:2000");
+       // 当socket连接打开时，输入用户名
+       ws.onopen = onopen;
+       // 当有消息时根据消息类型显示不同信息
+       ws.onmessage = onmessage;
+       ws.onclose = function() {
+          console.log("连接关闭，定时重连");
+          connect();
+       };
+       ws.onerror = function() {
+          console.log("出现错误");
+       };
+    }
+
+
+    function onopen(){
+        //console.log(name);
+        //var username=connect_id="";
+        if(!name)
+        {
+            name=prompt("请输入您的名字","");
+            if(!name || name=='null'){ 
+                name = '咕哒子';
+            }
+        }
+ 
+        $('#curuser').text(name);
+ 
+         data='{"type":"1","user":"'+name+'"}';
+         
+        ws.send(data);
+    }
+
+    function onmessage(e){
+        //console.log(e.data);
+        var data = eval("("+e.data+")");
+        var info=$('#chatinfo').html();
+        if(data.type==1)
+            $('#chatinfo').html(info+'<br/>'+data.data);
+        else if(data.type==2)
+        {
+            // 在线用户列表 userinfo
+            $('#userinfo').html(data.data);
+        }
+        else if(data.type==3)
+        {
+            // 在线用户列表 个人信息
+            name=data.data.userinfo;
+            //console.log(data.data);
+        }
+    }
+
+
+    $('#send').click(function(e){
+        var msg=$('#msg').val();
+        var tofriend=$('#tofriend').val();
+        var tofriendname=$('#tofriendname').val();
+        if(tofriend!="")
+        {
+            data='{"type":"3","user":"'+name+'","msg":"'+msg+'","friend_id":"'+tofriend+'","friendname":"'+tofriendname+'"}';
+        }else{
+            data='{"type":"2","user":"'+name+'","msg":"'+msg+'"}';
+        }
+        ws.send(data);
+        $('#msg').attr("value",'');
+    });
+
+    connect();
+
+
+  </script>
+</body>
+</html>

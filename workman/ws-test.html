@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+
+<div id="m_box" style="width: 1200px;height: 30px;border: 1px solid red;"></div>
+<div id="m_box1" style="width: 1200px;height: 30px;border: 1px solid red;"></div>
+<div id="m_box2" style="width: 1200px;height: 30px;border: 1px solid red;"></div>
+<div id="m_box3" style="width: 1200px;height: 30px;border: 1px solid red;"></div>
+<div>
+	<input id="inp" type="" name="" value="">
+	<button id="sub" type="">提交</button>
+</div>
+	
+</body>
+	<script type="text/javascript">
+		mx = document.getElementById('m_box');
+		mx1 = document.getElementById('m_box1');
+		mx2 = document.getElementById('m_box2');
+		mx3 = document.getElementById('m_box3');
+		sub = document.getElementById('sub');
+		inp = document.getElementById('inp');
+
+		// 假设服务端ip为127.0.0.1
+		ws = new WebSocket("ws://192.168.88.15:2000");
+		ws.onopen = function() {
+			
+		    mx.innerHTML = '连接成功';
+
+		    sub.onclick = function(){
+		    	 msg = inp.value;
+			    ws.send(msg);
+			    mx1.innerHTML = "给服务端发送一个字符串："+msg;
+		    };
+
+		};
+		ws.onmessage = function(e) {
+		    
+		    mx2.innerHTML = "收到服务端的消息：" + e.data;
+		};
+	</script>
+</html>
